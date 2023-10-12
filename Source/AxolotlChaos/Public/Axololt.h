@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Engine/DamageEvents.h"
 #include "Axololt.generated.h"
 
 UCLASS()
@@ -19,12 +20,22 @@ private:
 
 public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float DashDistance = 2000;
+	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float WeponDamage = 5;
+	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AttackRange = 1000;
+	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) TSubclassOf<UDamageType> PlayerDamageType;
+
 
 private:
 	//Llamado para adelante/atras inputs
 	void Move(const FInputActionValue& _value);
 
 	void Dashing();
+
+	void LightAttack();
+
+	bool IsAttacking();
+
+
 
 public:
 	// Sets default values for this character's properties
@@ -60,4 +71,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* DashAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LAttackAction;
 };

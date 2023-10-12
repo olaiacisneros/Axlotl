@@ -40,6 +40,8 @@ void AAxololt::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &AAxololt::Dashing);
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAxololt::Move);
+
+		EnhancedInputComponent->BindAction(LAttackAction, ETriggerEvent::Triggered, this, &AAxololt::LightAttack);
 	}
 
 }
@@ -62,4 +64,39 @@ void AAxololt::Move(const FInputActionValue& _value) {
 void AAxololt::Dashing() {
 	const FVector ForwardDir = this->GetActorForwardVector();
 	LaunchCharacter(ForwardDir * DashDistance, true, false);
+}
+
+void AAxololt::LightAttack()
+{
+	UE_LOG(LogTemp, Display, TEXT("Se hace"));
+
+	FVector Start = GetActorLocation();
+	FVector End = Start + (GetActorForwardVector() * AttackRange);
+
+	FHitResult HitResult;
+	FCollisionQueryParams CollisionParams;
+	TArray<AActor*> CharacterChildren;
+	GetAllChildActors(CharacterChildren);
+	CollisionParams.AddIgnoredActors(CharacterChildren);
+	CollisionParams.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
+	UE_LOG(LogTemp, Display, TEXT("Se entra? %b"), bHit);
+
+
+	if (bHit) {
+		AActor* HitActor = HitResult.GetActor();
+		if (HitActor != nullptr) {
+			
+			FDamageEvent DamageEvent(PlayerDamageType);
+
+
+			AController* InstitigatedBy = GetWorld()->GetFirstPlayerController();
+
+			AActor* DamageCauser = this;
+
+			HitActor->TakeDamage(WeponDamage, DamageEvent, InstitigatedBy, DamageCauser);
+			UE_LOG(LogTemp, Display, TEXT("Pegado"));
+		}
+	}
 }
