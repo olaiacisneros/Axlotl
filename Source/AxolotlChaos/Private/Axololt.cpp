@@ -4,6 +4,10 @@
 #include "Axololt.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
 
 // Sets default values
 AAxololt::AAxololt()
@@ -180,4 +184,33 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	}
 
 	return ActualDamage;
+}
+
+void AAxololt::RangedAttack() {
+	
+	FVector Start = GetActorLocation();
+
+	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+
+	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
+
+	/*float mouseX;
+	float mouseY;
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetMousePosition(mouseX, mouseY);
+
+	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);*/
+
+	FVector End = Start + (/*this->GetActorForwardVector() */ LookingAt * AttackRange);
+
+	FColor Color = FColor::Red;
+
+	float ArrowSize = 10.f;
+	float LifeTime = 1.0f;
+	uint8 DepthPriority = 0;
+	float Thickness = 2.0f;
+
+	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+
+	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
+
 }

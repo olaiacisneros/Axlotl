@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Engine/DamageEvents.h"
+#include "DrawDebugHelpers.h"
 #include "Axololt.generated.h"
 
 UCLASS()
@@ -43,6 +44,9 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void AddHealth(float HealthAmount);
 
+	UFUNCTION(BlueprintCallable, Category = "Ranged")
+	void RangedAttack();
+
 protected:
 	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);
 
@@ -62,6 +66,8 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	
 
 
 public:
