@@ -192,6 +192,18 @@ void AAxololt::RangedAttack() {
 
 	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
 
+	FVector WorldLocation;
+	FVector WorldDirection;
+	
+	FVector End = Start;
+
+	if (GetWorld()->GetFirstPlayerController()->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection)) {
+
+		End += WorldLocation;
+		UE_LOG(LogTemp, Display, TEXT("WorldLocation: %s"), *WorldLocation.ToString());
+	}
+
+
 	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
 
 	/*float mouseX;
@@ -200,7 +212,6 @@ void AAxololt::RangedAttack() {
 
 	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);*/
 
-	FVector End = Start + (/*this->GetActorForwardVector() */ LookingAt * AttackRange);
 
 	FColor Color = FColor::Red;
 
