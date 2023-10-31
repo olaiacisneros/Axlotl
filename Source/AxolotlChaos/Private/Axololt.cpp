@@ -188,9 +188,23 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 
 void AAxololt::RangedAttack() {
 	
-	FVector Start = GetActorLocation();
+	/*FVector Start = GetActorLocation();
 
 	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+
+	FVector WorldLocation;
+	FVector WorldDirection;
+	
+	FVector End;
+
+	if (GetWorld()->GetFirstPlayerController()->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection)) {
+
+		WorldDirection.Z = 0;
+		WorldDirection = WorldDirection.GetSafeNormal();
+		End = Start + WorldDirection * AttackRange;
+		UE_LOG(LogTemp, Display, TEXT("WorldLocation: %s"), *WorldLocation.ToString());
+	}
+
 
 	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
 
@@ -198,18 +212,17 @@ void AAxololt::RangedAttack() {
 	float mouseY;
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetMousePosition(mouseX, mouseY);
 
-	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);*/
+	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);
 
-	FVector End = Start + (/*this->GetActorForwardVector() */ LookingAt * AttackRange);
 
 	FColor Color = FColor::Red;
 
 	float ArrowSize = 10.f;
-	float LifeTime = 1.0f;
+	float LifeTime = 0.1f;
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
 
-	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);*/
 
 	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
