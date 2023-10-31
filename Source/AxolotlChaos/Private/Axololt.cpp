@@ -4,6 +4,10 @@
 #include "Axololt.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+
 
 // Sets default values
 AAxololt::AAxololt()
@@ -41,7 +45,7 @@ void AAxololt::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAxololt::Move);
 
-		EnhancedInputComponent->BindAction(LAttackAction, ETriggerEvent::Triggered, this, &AAxololt::LightAttack);
+		//EnhancedInputComponent->BindAction(LAttackAction, ETriggerEvent::Triggered, this, &AAxololt::LightAttack);
 	}
 
 }
@@ -99,4 +103,114 @@ void AAxololt::LightAttack()
 			UE_LOG(LogTemp, Display, TEXT("Pegado"));
 		}
 	}
+}
+
+bool AAxololt::IsAttacking()
+{
+	return false;
+}
+
+void AAxololt::AddHealth(float _healthAmount) {
+	Health += _healthAmount;
+}
+
+float AAxololt::InternalTakePointDamage(float Damage, FPointDamageEvent const& RadialDamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Health -= Damage;
+	return Health;
+}
+
+float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float ActualDamage = DamageAmount;
+
+	UDamageType const* const DamageTypeCDO = DamageEvent.DamageTypeClass ? DamageEvent.DamageTypeClass->GetDefaultObject<UDamageType>() : GetDefault<UDamageType>();
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		// point damage event, pass off to helper function
+		FPointDamageEvent* const PointDamageEvent = (FPointDamageEvent*)&DamageEvent;
+		ActualDamage = InternalTakePointDamage(ActualDamage, *PointDamageEvent, EventInstigator, DamageCauser);
+
+		// K2 notification for this actor
+		if (ActualDamage != 0.f)
+		{
+			ReceivePointDamage(ActualDamage, DamageTypeCDO, PointDamageEvent->HitInfo.ImpactPoint, PointDamageEvent->HitInfo.ImpactNormal, PointDamageEvent->HitInfo.Component.Get(), PointDamageEvent->HitInfo.BoneName, PointDamageEvent->ShotDirection, EventInstigator, DamageCauser, PointDamageEvent->HitInfo);
+			OnTakePointDamage.Broadcast(this, ActualDamage, EventInstigator, PointDamageEvent->HitInfo.ImpactPoint, PointDamageEvent->HitInfo.Component.Get(), PointDamageEvent->HitInfo.BoneName, PointDamageEvent->ShotDirection, DamageTypeCDO, DamageCauser);
+
+			// Notify the component
+			UPrimitiveComponent* const PrimComp = PointDamageEvent->HitInfo.Component.Get();
+			if (PrimComp)
+			{
+				PrimComp->ReceiveComponentDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+			}
+		}
+	}
+	else if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
+	{
+		// radial damage event, pass off to helper function
+		FRadialDamageEvent* const RadialDamageEvent = (FRadialDamageEvent*)&DamageEvent;
+		ActualDamage = InternalTakeRadialDamage(ActualDamage, *RadialDamageEvent, EventInstigator, DamageCauser);
+
+		// K2 notification for this actor
+		if (ActualDamage != 0.f)
+		{
+			FHitResult const& Hit = (RadialDamageEvent->ComponentHits.Num() > 0) ? RadialDamageEvent->ComponentHits[0] : FHitResult();
+			ReceiveRadialDamage(ActualDamage, DamageTypeCDO, RadialDamageEvent->Origin, Hit, EventInstigator, DamageCauser);
+			OnTakeRadialDamage.Broadcast(this, ActualDamage, DamageTypeCDO, RadialDamageEvent->Origin, Hit, EventInstigator, DamageCauser);
+
+			// add any desired physics impulses to our components
+			for (int HitIdx = 0; HitIdx < RadialDamageEvent->ComponentHits.Num(); ++HitIdx)
+			{
+				FHitResult const& CompHit = RadialDamageEvent->ComponentHits[HitIdx];
+				UPrimitiveComponent* const PrimComp = CompHit.Component.Get();
+				if (PrimComp && PrimComp->GetOwner() == this)
+				{
+					PrimComp->ReceiveComponentDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+				}
+			}
+		}
+	}
+
+	// generic damage notifications sent for any damage
+	// note we will broadcast these for negative damage as well
+	if (ActualDamage != 0.f)
+	{
+		ReceiveAnyDamage(ActualDamage, DamageTypeCDO, EventInstigator, DamageCauser);
+		OnTakeAnyDamage.Broadcast(this, ActualDamage, DamageTypeCDO, EventInstigator, DamageCauser);
+		if (EventInstigator != nullptr)
+		{
+			EventInstigator->InstigatedAnyDamage(ActualDamage, DamageTypeCDO, this, DamageCauser);
+		}
+	}
+
+	return ActualDamage;
+}
+
+void AAxololt::RangedAttack() {
+	
+	FVector Start = GetActorLocation();
+
+	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
+
+	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
+
+	/*float mouseX;
+	float mouseY;
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetMousePosition(mouseX, mouseY);
+
+	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);*/
+
+	FVector End = Start + (/*this->GetActorForwardVector() */ LookingAt * AttackRange);
+
+	FColor Color = FColor::Red;
+
+	float ArrowSize = 10.f;
+	float LifeTime = 1.0f;
+	uint8 DepthPriority = 0;
+	float Thickness = 2.0f;
+
+	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+
+	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
+
 }

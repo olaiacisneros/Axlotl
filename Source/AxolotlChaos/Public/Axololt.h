@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Engine/DamageEvents.h"
+#include "DrawDebugHelpers.h"
 #include "Axololt.generated.h"
 
 UCLASS()
@@ -23,19 +24,33 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float WeponDamage = 5;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AttackRange = 1000;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) TSubclassOf<UDamageType> PlayerDamageType;
+	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float Health = 10;
 
 
 private:
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	//Llamado para adelante/atras inputs
 	void Move(const FInputActionValue& _value);
 
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void Dashing();
 
+	UFUNCTION(BlueprintCallable, Category = "Attacks")
 	void LightAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "Attacks")
 	bool IsAttacking();
 
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void AddHealth(float HealthAmount);
 
+	UFUNCTION(BlueprintCallable, Category = "Ranged")
+	void RangedAttack();
+
+protected:
+	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);
+
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser);
 
 public:
 	// Sets default values for this character's properties
@@ -51,6 +66,8 @@ protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	
 
 
 public:
