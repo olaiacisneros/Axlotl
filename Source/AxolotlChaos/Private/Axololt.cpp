@@ -4,6 +4,10 @@
 #include "Axololt.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -12,8 +16,33 @@
 // Sets default values
 AAxololt::AAxololt()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Don't rotate character to camera direction
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	// Create a camera boom...
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
+	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, -30.f, 0.f));
+	CameraBoom->bDoCollisionTest = true; // We want to pull camera in when it collides with level
+
+	// Create a camera...
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 }
 
@@ -22,7 +51,9 @@ void AAxololt::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
+	PlayerController = Cast<APlayerController>(Controller);
+
+	if (PlayerController) {
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			Subsystem->AddMappingContext(DefaultMappingContent, 0);
 		}
@@ -243,6 +274,27 @@ void AAxololt::RangedAttack() {
 	float Thickness = 2.0f;
 
 	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);*/
+
+	FHitResult Hit;
+	bool bHitSuccessful = false;
+
+	FVector Start = GetActorLocation();
+	FVector End;
+	
+	bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+
+	if (bHitSuccessful) {
+		End = Hit.Location;
+	}
+
+
+	float ArrowSize = 10.f;
+	float LifeTime = 0.1f;
+	uint8 DepthPriority = 0;
+	float Thickness = 2.0f;
+	FColor Color = FColor::Red;
+
+	DrawDebugDirectionalArrow(GetWorld(), Start, End - Start.GetSafeNormal(), ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
 
 	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
