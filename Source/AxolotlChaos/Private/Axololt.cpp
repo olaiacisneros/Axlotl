@@ -16,6 +16,8 @@
 // Sets default values
 AAxololt::AAxololt()
 {
+	RotatorProjectile = FRotator(0, 0, 0);
+
 	// Don't rotate character to camera direction
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -33,7 +35,7 @@ AAxololt::AAxololt()
 	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
 	CameraBoom->TargetArmLength = 800.f;
 	CameraBoom->SetRelativeRotation(FRotator(-60.f, -30.f, 0.f));
-	CameraBoom->bDoCollisionTest = true; // We want to pull camera in when it collides with level
+	CameraBoom->bDoCollisionTest = false; // We want to pull camera in when it collides with level
 
 	// Create a camera...
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
@@ -154,7 +156,7 @@ void AAxololt::LightAttack()
 			UE_LOG(LogTemp, Display, TEXT("Pegado"));
 		}
 	}
-}
+}	
 
 bool AAxololt::IsAttacking()
 {
@@ -239,62 +241,34 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 
 void AAxololt::RangedAttack() {
 	
-	/*FVector Start = GetActorLocation();
-
-	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
-
-	FVector WorldLocation;
-	FVector WorldDirection;
-	
-	FVector End;
-
-	if (GetWorld()->GetFirstPlayerController()->DeprojectScreenPositionToWorld(MousePosition.X, MousePosition.Y, WorldLocation, WorldDirection)) {
-
-		WorldDirection.Z = 0;
-		WorldDirection = WorldDirection.GetSafeNormal();
-		End = Start + WorldDirection * AttackRange;
-		UE_LOG(LogTemp, Display, TEXT("WorldLocation: %s"), *WorldLocation.ToString());
-	}
-
-
-	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
-
-	/*float mouseX;
-	float mouseY;
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetMousePosition(mouseX, mouseY);
-
-	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);
-
-
-	FColor Color = FColor::Red;
-
-	float ArrowSize = 10.f;
-	float LifeTime = 0.1f;
-	uint8 DepthPriority = 0;
-	float Thickness = 2.0f;
-
-	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);*/
-
 	FHitResult Hit;
 	bool bHitSuccessful = false;
 
 	FVector Start = GetActorLocation();
-	FVector End;
 	
 	bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 
 	if (bHitSuccessful) {
-		End = Hit.Location;
+		ProjectileDirection = Hit.Location;
 	}
-
-
+	
 	float ArrowSize = 10.f;
 	float LifeTime = 0.1f;
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
 	FColor Color = FColor::Red;
 
-	DrawDebugDirectionalArrow(GetWorld(), Start, End - Start.GetSafeNormal(), ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+
+	FVector NormalizedStart = Start.GetSafeNormal();
+	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
+
+	float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
+	float AngleRad = FMath::Acos(DotProduct);
+
+	AngleProjectile = FMath::RadiansToDegrees(AngleRad);
+
+	RotatorProjectile.Yaw = AngleProjectile;
 
 	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
