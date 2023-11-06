@@ -4,6 +4,10 @@
 #include "Axololt.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
@@ -12,8 +16,35 @@
 // Sets default values
 AAxololt::AAxololt()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	RotatorProjectile = FRotator(0, 0, 0);
+
+	// Don't rotate character to camera direction
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Rotate character to moving direction
+	GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	// Create a camera boom...
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->SetUsingAbsoluteRotation(true); // Don't want arm to rotate when character does
+	CameraBoom->TargetArmLength = 800.f;
+	CameraBoom->SetRelativeRotation(FRotator(-60.f, -30.f, 0.f));
+	CameraBoom->bDoCollisionTest = false; // We want to pull camera in when it collides with level
+
+	// Create a camera...
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("TopDownCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+
+	// Activate ticking in order to update the cursor every frame.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 }
 
@@ -22,7 +53,9 @@ void AAxololt::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller)) {
+	PlayerController = Cast<APlayerController>(Controller);
+
+	if (PlayerController) {
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer())) {
 			Subsystem->AddMappingContext(DefaultMappingContent, 0);
 		}
@@ -62,6 +95,26 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+
+		//Calcula la direccion del movimiento
+		FVector MovementDirection = ForwardDirection * MovementVector.Y + RightDirection * MovementVector.X;
+
+		if (!MovementDirection.IsNearlyZero()) {
+			//Normaliza la direccion del movimiento
+			MovementDirection.Normalize();
+
+			//Calcula la rotacion hacia la que el personaje deberia mirara
+			FRotator NewLookAt = MovementDirection.Rotation();
+
+			//Obtiene la rotacion actual del personaje 
+			FRotator CurrentRotation = GetActorRotation();
+
+			//Interpola suavemente hacia la nueva rotacion
+			FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
+
+			//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
+			SetActorRotation(SmoothRotation);
+		}
 	}
 }
 
@@ -103,7 +156,7 @@ void AAxololt::LightAttack()
 			UE_LOG(LogTemp, Display, TEXT("Pegado"));
 		}
 	}
-}
+}	
 
 bool AAxololt::IsAttacking()
 {
@@ -188,28 +241,34 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 
 void AAxololt::RangedAttack() {
 	
+	FHitResult Hit;
+	bool bHitSuccessful = false;
+
 	FVector Start = GetActorLocation();
+	
+	bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 
-	FVector2D MousePosition = UWidgetLayoutLibrary::GetMousePositionOnViewport(GetWorld());
-
-	FVector LookingAt = FVector(MousePosition.X, MousePosition.Y, Start.Z);
-
-	/*float mouseX;
-	float mouseY;
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetMousePosition(mouseX, mouseY);
-
-	FVector LookingAt = FVector(mouseX, mouseY, Start.Z);*/
-
-	FVector End = Start + (/*this->GetActorForwardVector() */ LookingAt * AttackRange);
-
-	FColor Color = FColor::Red;
-
+	if (bHitSuccessful) {
+		ProjectileDirection = Hit.Location;
+	}
+	
 	float ArrowSize = 10.f;
-	float LifeTime = 1.0f;
+	float LifeTime = 0.1f;
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
+	FColor Color = FColor::Red;
 
-	DrawDebugDirectionalArrow(GetWorld(), Start, End, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+
+	FVector NormalizedStart = Start.GetSafeNormal();
+	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
+
+	float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
+	float AngleRad = FMath::Acos(DotProduct);
+
+	AngleProjectile = FMath::RadiansToDegrees(AngleRad);
+
+	RotatorProjectile.Yaw = AngleProjectile;
 
 	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
