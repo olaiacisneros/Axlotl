@@ -25,6 +25,9 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AttackRange = 1000;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) TSubclassOf<UDamageType> PlayerDamageType;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float Health = 10;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FVector ProjectileDirection;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float AngleProjectile = 0;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FRotator RotatorProjectile;
 
 
 private:
@@ -90,4 +93,6 @@ private:
 	class UInputAction* DashAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LAttackAction;
+
+	APlayerController* PlayerController = NULL;
 };
