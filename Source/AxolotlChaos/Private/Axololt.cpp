@@ -264,6 +264,7 @@ void AAxololt::RangedAttack() {
 	//FVector NormalizedStart = Start.GetSafeNormal();
 	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
 
+
 	FRotator NewLookAt = NormalizedDirection.Rotation();
 
 	//float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
