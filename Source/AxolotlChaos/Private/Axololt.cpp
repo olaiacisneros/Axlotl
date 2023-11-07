@@ -114,6 +114,7 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 			//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
 			SetActorRotation(SmoothRotation);
+			UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
 		}
 	}
 }
@@ -240,35 +241,37 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 }
 
 void AAxololt::RangedAttack() {
-	
+
 	FHitResult Hit;
 	bool bHitSuccessful = false;
 
 	FVector Start = GetActorLocation();
-	
+
 	bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
 
 	if (bHitSuccessful) {
-		ProjectileDirection = Hit.Location;
+		ProjectileDirection = Hit.Location - Start;
 	}
-	
+
 	float ArrowSize = 10.f;
 	float LifeTime = 0.1f;
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
 	FColor Color = FColor::Red;
 
-	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection, ArrowSize, Color, true, LifeTime, DepthPriority, Thickness);
+	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
 
-	FVector NormalizedStart = Start.GetSafeNormal();
+	//FVector NormalizedStart = Start.GetSafeNormal();
 	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
 
-	float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
-	float AngleRad = FMath::Acos(DotProduct);
+	FRotator NewLookAt = NormalizedDirection.Rotation();
 
-	AngleProjectile = FMath::RadiansToDegrees(AngleRad);
+	//float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
+	//float AngleRad = FMath::Acos(DotProduct);
 
-	RotatorProjectile.Yaw = AngleProjectile;
+	//AngleProjectile = FMath::RadiansToDegrees(AngleRad);
+
+	RotatorProjectile = NewLookAt;
 
 	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
