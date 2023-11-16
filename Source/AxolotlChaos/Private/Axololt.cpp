@@ -261,11 +261,13 @@ void AAxololt::RangedAttack() {
 
 	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
 
-	//FVector NormalizedStart = Start.GetSafeNormal();
+	FVector NormalizedStart = Start.GetSafeNormal();
 	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
 
+	FRotator RotationProjectile = NormalizedDirection.Rotation();
+	FRotator RotationStart = NormalizedStart.Rotation();
 
-	FRotator NewLookAt = NormalizedDirection.Rotation();
+	FRotator NewLookAt = RotationProjectile;
 
 	//float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
 	//float AngleRad = FMath::Acos(DotProduct);
