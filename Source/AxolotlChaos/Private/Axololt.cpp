@@ -258,6 +258,8 @@ void AAxololt::RangedAttack() {
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
 	FColor Color = FColor::Red;
+	
+	ProjectileDirection.Z = Start.Z;
 
 	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
 
