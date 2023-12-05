@@ -258,8 +258,10 @@ void AAxololt::RangedAttack() {
 	uint8 DepthPriority = 0;
 	float Thickness = 2.0f;
 	FColor Color = FColor::Red;
+	
+	ProjectileDirection.Z = Start.Z;
 
-	DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
+	//DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
 
 	FVector NormalizedStart = Start.GetSafeNormal();
 	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
@@ -276,6 +278,6 @@ void AAxololt::RangedAttack() {
 
 	RotatorProjectile = NewLookAt;
 
-	UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
+	//UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
 
 }
