@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AxolotlChaosGameMode.h"
-#include "AxolotlChaosCharacter.h"
+#include "Axololt.h"
 #include "UObject/ConstructorHelpers.h"
 
 AAxolotlChaosGameMode::AAxolotlChaosGameMode()
