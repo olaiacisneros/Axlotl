@@ -119,9 +119,13 @@ void AAxololt::Move(const FInputActionValue& _value) {
 	}
 }
 
-void AAxololt::Dashing() {
-	const FVector ForwardDir = this->GetActorForwardVector();
-	LaunchCharacter(ForwardDir * DashDistance, true, false);
+void AAxololt::Dashing() 
+{	
+	if (!Dash_Disable)
+	{
+		const FVector ForwardDir = this->GetActorForwardVector();
+		LaunchCharacter(ForwardDir * DashDistance, true, false);
+	}
 }
 
 void AAxololt::LightAttack()
