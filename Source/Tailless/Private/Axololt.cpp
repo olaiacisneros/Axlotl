@@ -121,7 +121,7 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 void AAxololt::Dashing() 
 {	
-	if (!Dash_Disable)
+	if (!DashDisable)
 	{
 		const FVector ForwardDir = this->GetActorForwardVector();
 		LaunchCharacter(ForwardDir * DashDistance, true, false);
