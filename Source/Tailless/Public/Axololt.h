@@ -92,8 +92,6 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* DashAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LAttackAction;
 
 	APlayerController* PlayerController = NULL;
 };
