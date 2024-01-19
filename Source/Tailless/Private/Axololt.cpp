@@ -114,7 +114,7 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 			//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
 			SetActorRotation(SmoothRotation);
-			UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
+			//UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
 		}
 	}
 }
@@ -130,7 +130,7 @@ void AAxololt::Dashing()
 
 void AAxololt::LightAttack()
 {
-	UE_LOG(LogTemp, Display, TEXT("Se hace"));
+	//UE_LOG(LogTemp, Display, TEXT("Se hace"));
 
 	FVector Start = GetActorLocation();
 	FVector End = Start + (GetActorForwardVector() * AttackRange);
@@ -143,7 +143,7 @@ void AAxololt::LightAttack()
 	CollisionParams.AddIgnoredActor(this);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, CollisionParams);
-	UE_LOG(LogTemp, Display, TEXT("Se entra? %b"), bHit);
+	//UE_LOG(LogTemp, Display, TEXT("Se entra? %b"), bHit);
 
 
 	if (bHit) {
@@ -158,7 +158,7 @@ void AAxololt::LightAttack()
 			AActor* DamageCauser = this;
 
 			HitActor->TakeDamage(WeponDamage, DamageEvent, InstitigatedBy, DamageCauser);
-			UE_LOG(LogTemp, Display, TEXT("Pegado"));
+			//UE_LOG(LogTemp, Display, TEXT("Pegado"));
 		}
 	}
 }
