@@ -49,7 +49,7 @@ private:
 	void AddHealth(float HealthAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Ranged")
-	void RangedAttack();
+	void RangedAttack(const FInputActionValue& _value);
 
 protected:
 	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);
@@ -81,6 +81,8 @@ public:
 public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite)
 	float NormalSpeedRun;
+	
+	bool ControllerConnected = false;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -92,6 +94,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	class UInputAction* DashAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RangedAction;
+
 
 	APlayerController* PlayerController = NULL;
 };

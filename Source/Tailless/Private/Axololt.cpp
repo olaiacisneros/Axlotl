@@ -77,6 +77,8 @@ void AAxololt::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		//EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &AAxololt::Dashing);
 
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAxololt::Move);
+		
+		EnhancedInputComponent->BindAction(RangedAction, ETriggerEvent::Triggered, this, &AAxololt::RangedAttack);
 
 		//EnhancedInputComponent->BindAction(LAttackAction, ETriggerEvent::Triggered, this, &AAxololt::LightAttack);
 	}
@@ -87,8 +89,9 @@ void AAxololt::Move(const FInputActionValue& _value) {
 	FVector2D MovementVector = _value.Get<FVector2D>();
 
 	if (Controller != nullptr) {
-		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FRotator CameraRotation = CameraBoom->GetComponentRotation();
+		//const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, CameraRotation.Yaw, 0);
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
@@ -244,44 +247,63 @@ float AAxololt::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, 
 	return ActualDamage;
 }
 
-void AAxololt::RangedAttack() {
+void AAxololt::RangedAttack(const FInputActionValue& _value)
+{
+	FVector2D MovementVector = _value.Get<FVector2D>();
 
-	FHitResult Hit;
-	bool bHitSuccessful = false;
+	if (_value.IsNonZero())
+	{
+		ControllerConnected = true;
 
-	FVector Start = GetActorLocation();
+		FVector Vector(MovementVector.X, MovementVector.Y, 0);
+		RotatorProjectile = Vector.GetSafeNormal().Rotation();
+		RotatorProjectile.Yaw += 90;
+		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile: %s"), *RotatorProjectile.ToString());
+		//UE_LOG(LogTemp, Display, TEXT("Input detected"));
+	}
+	else if (!ControllerConnected)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Input not detected"));
 
-	bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+		FHitResult Hit;
+		bool bHitSuccessful = false;
 
-	if (bHitSuccessful) {
-		ProjectileDirection = Hit.Location - Start;
+		FVector Start = GetActorLocation();
+
+		bHitSuccessful = PlayerController->GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit);
+
+		if (bHitSuccessful) {
+			ProjectileDirection = Hit.Location - Start;
+		}
+
+		float ArrowSize = 10.f;
+		float LifeTime = 0.1f;
+		uint8 DepthPriority = 0;
+		float Thickness = 2.0f;
+		FColor Color = FColor::Red;
+
+		ProjectileDirection.Z = Start.Z;
+
+		//DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
+
+		FVector NormalizedStart = Start.GetSafeNormal();
+		FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
+
+		FRotator RotationProjectile = NormalizedDirection.Rotation();
+		FRotator RotationStart = NormalizedStart.Rotation();
+
+		FRotator NewLookAt = RotationProjectile;
+
+		//float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
+		//float AngleRad = FMath::Acos(DotProduct);
+
+		//AngleProjectile = FMath::RadiansToDegrees(AngleRad);
+
+		RotatorProjectile = NewLookAt;
+		RotatorProjectile.Pitch = 0.f;
+		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
+		
 	}
 
-	float ArrowSize = 10.f;
-	float LifeTime = 0.1f;
-	uint8 DepthPriority = 0;
-	float Thickness = 2.0f;
-	FColor Color = FColor::Red;
-
-	ProjectileDirection.Z = Start.Z;
-
-	//DrawDebugDirectionalArrow(GetWorld(), Start, ProjectileDirection + Start, ArrowSize, Color, false, LifeTime, DepthPriority, Thickness);
-
-	FVector NormalizedStart = Start.GetSafeNormal();
-	FVector NormalizedDirection = ProjectileDirection.GetSafeNormal();
-
-	FRotator RotationProjectile = NormalizedDirection.Rotation();
-	FRotator RotationStart = NormalizedStart.Rotation();
-
-	FRotator NewLookAt = RotationProjectile;
-
-	//float DotProduct = FVector::DotProduct(NormalizedStart, NormalizedDirection);
-	//float AngleRad = FMath::Acos(DotProduct);
-
-	//AngleProjectile = FMath::RadiansToDegrees(AngleRad);
-
-	RotatorProjectile = NewLookAt;
-
-	//UE_LOG(LogTemp, Display, TEXT("Draw Arrow"));
-
+	//UE_LOG(LogTemp, Warning, TEXT("Valor de _value: %s"), *_value.ToString());
 }
