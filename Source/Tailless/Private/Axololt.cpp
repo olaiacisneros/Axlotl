@@ -67,6 +67,8 @@ void AAxololt::BeginPlay()
 void AAxololt::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	RangedMouse();
 
 }
 
@@ -257,11 +259,17 @@ void AAxololt::RangedAttack(const FInputActionValue& _value)
 
 		FVector Vector(MovementVector.X, MovementVector.Y, 0);
 		RotatorProjectile = Vector.GetSafeNormal().Rotation();
-		RotatorProjectile.Yaw += 90;
-		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile: %s"), *RotatorProjectile.ToString());
+		RotatorProjectile.Yaw += 65;
+		UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile: %s"), *RotatorProjectile.ToString());
 		//UE_LOG(LogTemp, Display, TEXT("Input detected"));
 	}
-	else if (!ControllerConnected)
+
+	UE_LOG(LogTemp, Warning, TEXT("Valor de _value: %s"), *_value.ToString());
+}
+
+void AAxololt::RangedMouse()
+{
+	if (!ControllerConnected)
 	{
 		UE_LOG(LogTemp, Display, TEXT("Input not detected"));
 
@@ -301,9 +309,7 @@ void AAxololt::RangedAttack(const FInputActionValue& _value)
 
 		RotatorProjectile = NewLookAt;
 		RotatorProjectile.Pitch = 0.f;
-		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
-		
-	}
+		UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
 
-	//UE_LOG(LogTemp, Warning, TEXT("Valor de _value: %s"), *_value.ToString());
+	}
 }
