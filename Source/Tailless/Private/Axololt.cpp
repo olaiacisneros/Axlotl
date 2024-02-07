@@ -260,18 +260,18 @@ void AAxololt::RangedAttack(const FInputActionValue& _value)
 		FVector Vector(MovementVector.X, MovementVector.Y, 0);
 		RotatorProjectile = Vector.GetSafeNormal().Rotation();
 		RotatorProjectile.Yaw += 65;
-		UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile: %s"), *RotatorProjectile.ToString());
+		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile: %s"), *RotatorProjectile.ToString());
 		//UE_LOG(LogTemp, Display, TEXT("Input detected"));
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Valor de _value: %s"), *_value.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Valor de _value: %s"), *_value.ToString());
 }
 
 void AAxololt::RangedMouse()
 {
 	if (!ControllerConnected)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Input not detected"));
+		//UE_LOG(LogTemp, Display, TEXT("Input not detected"));
 
 		FHitResult Hit;
 		bool bHitSuccessful = false;
@@ -309,7 +309,7 @@ void AAxololt::RangedMouse()
 
 		RotatorProjectile = NewLookAt;
 		RotatorProjectile.Pitch = 0.f;
-		UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
+		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
 
 	}
 }
