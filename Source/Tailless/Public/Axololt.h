@@ -51,6 +51,9 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Ranged")
 	void RangedAttack(const FInputActionValue& _value);
 
+	UFUNCTION(BlueprintCallable, Category = "Ranged")
+	void RangedMouse();
+
 protected:
 	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);
 
