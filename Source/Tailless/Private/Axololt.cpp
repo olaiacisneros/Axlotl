@@ -174,7 +174,14 @@ bool AAxololt::IsAttacking()
 }
 
 void AAxololt::AddHealth(float _healthAmount) {
-	Health += _healthAmount;
+	if (Health + _healthAmount >= 100)
+	{
+
+	}
+	else
+	{
+		Health += _healthAmount;
+	}
 }
 
 float AAxololt::InternalTakePointDamage(float Damage, FPointDamageEvent const& RadialDamageEvent, AController* EventInstigator, AActor* DamageCauser)
