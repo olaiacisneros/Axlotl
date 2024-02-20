@@ -147,7 +147,14 @@ void AAxololt::Dashing()
         float EdgeThreshold = 50.0f;
         FHitResult Hit;
         
-        GetWorld()->LineTraceSingleByChannel(Hit, LocationEdge, LocationEdge - FVector(0, 0, EdgeThreshold), ECC_Visibility, GetIgnoreCharacterParams());
+		FRotator PlayerRotation = GetActorRotation();
+		FVector RotatedLocationEdge = PlayerRotation.RotateVector(LocationEdge);
+		UE_LOG(LogTemp, Display, TEXT("RotatedLocationEdge %s"), *RotatedLocationEdge.ToString());
+
+		FVector StartPosition = GetActorLocation() - RotatedLocationEdge;
+		UE_LOG(LogTemp, Display, TEXT("StartPosition %s"), *StartPosition.ToString());
+
+		GetWorld()->LineTraceSingleByChannel(Hit, StartPosition, StartPosition - FVector(0, 0, EdgeThreshold), ECC_Visibility, GetIgnoreCharacterParams());
 
         bool IsNearEdge = !Hit.IsValidBlockingHit();
 
@@ -155,10 +162,12 @@ void AAxololt::Dashing()
 
         if (IsNearEdge)
         {
+			UE_LOG(LogTemp, Display, TEXT("NearEdge"));
             LaunchCharacter(ForwardDir * AirborneDashDistance, true, true);
         }
         else
         {
+			UE_LOG(LogTemp, Display, TEXT("Not Edge"));
 		    LaunchCharacter(ForwardDir * DashDistance, true, true);
         }
 	}
