@@ -21,6 +21,7 @@ private:
 
 public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float DashDistance = 2000;
+    UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AirborneDashDistance = 100;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float WeponDamage = 5;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AttackRange = 1000;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) TSubclassOf<UDamageType> PlayerDamageType;
@@ -29,6 +30,7 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float AngleProjectile = 0;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FRotator RotatorProjectile;
 	UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) bool DashDisable = false;
+    UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) FVector LocationEdge;
 
 
 private:
@@ -103,4 +105,10 @@ private:
 
 
 	APlayerController* PlayerController = NULL;
+
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement") UCharacterMovementComponent* CharacterMovementComponent;
+
+public:
+    FCollisionQueryParams GetIgnoreCharacterParams() const;
 };

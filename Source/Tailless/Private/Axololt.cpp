@@ -46,6 +46,8 @@ AAxololt::AAxololt()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 
+    CharacterMovementComponent = GetCharacterMovement();
+
 }
 
 // Called when the game starts or when spawned
@@ -69,6 +71,15 @@ void AAxololt::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 	RangedMouse();
+
+    /*if (CharacterMovementComponent->IsFalling())
+    {
+        CharacterMovementComponent->DisableMovement();
+    }
+    else
+    {
+        CharacterMovementComponent->SetMovementMode(EMovementMode::MOVE_Walking);
+    }*/
 
 }
 
@@ -126,10 +137,30 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 void AAxololt::Dashing() 
 {	
+    if (CharacterMovementComponent->IsFalling())
+    {
+        return;
+    }
+
 	if (!DashDisable)
 	{
-		const FVector ForwardDir = this->GetActorForwardVector();
-		LaunchCharacter(ForwardDir * DashDistance, true, false);
+        float EdgeThreshold = 50.0f;
+        FHitResult Hit;
+        
+        GetWorld()->LineTraceSingleByChannel(Hit, LocationEdge, LocationEdge - FVector(0, 0, EdgeThreshold), ECC_Visibility, GetIgnoreCharacterParams());
+
+        bool IsNearEdge = !Hit.IsValidBlockingHit();
+
+        const FVector ForwardDir = this->GetActorForwardVector();
+
+        if (IsNearEdge)
+        {
+            LaunchCharacter(ForwardDir * AirborneDashDistance, true, true);
+        }
+        else
+        {
+		    LaunchCharacter(ForwardDir * DashDistance, true, true);
+        }
 	}
 }
 
@@ -176,7 +207,7 @@ bool AAxololt::IsAttacking()
 void AAxololt::AddHealth(float _healthAmount) {
 	if (Health + _healthAmount >= 100)
 	{
-
+        return;
 	}
 	else
 	{
@@ -319,4 +350,16 @@ void AAxololt::RangedMouse()
 		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
 
 	}
+}
+
+FCollisionQueryParams AAxololt::GetIgnoreCharacterParams() const
+{
+    FCollisionQueryParams result;
+
+    TArray<AActor*> CharacterChildren;
+    GetAllChildActors(CharacterChildren);
+    result.AddIgnoredActors(CharacterChildren);
+    result.AddIgnoredActor(this);
+    
+    return result;
 }
