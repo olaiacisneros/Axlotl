@@ -9,6 +9,19 @@
 #include "DrawDebugHelpers.h"
 #include "Axololt.generated.h"
 
+UENUM(BlueprintType)
+enum class ENUM_UPGRADES
+{
+	UPGRADE_MORE_LIFE					UMETA(DisplayName = "UPGRADE_MORE_LIFE"),
+	UPGRADE_LIFE_PER_ROOM				UMETA(DisplayName = "UPGRADE_LIFE_PER_ROOM"),
+	UPGRADE_DOUBLE_DASH					UMETA(DisplayName = "UPGRADE_DOUBLE_DASH"),
+	UPGRADE_BASIC_ATTACK				UMETA(DisplayName = "UPGRADE_BASIC_ATTACK"),
+	UPGRADE_BASIC_COMBO					UMETA(DisplayName = "UPGRADE_BASIC_COMBO"),
+	UPGRADE_SPECIAL_ATTACK				UMETA(DisplayName = "UPGRADE_SPECIAL_ATTACK"),
+	UPGRADE_COOLDOWN_SPECIAL			UMETA(DisplayName = "UPGRADE_COOLDOWN_SPECIAL"),
+	UPGRADE_ALL							UMETA(DisplayName = "UPGRADE_ALL"),
+};
+
 UCLASS()
 class TAILLESS_API AAxololt : public ACharacter
 {
@@ -32,6 +45,8 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) bool DashDisable = false;
     UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) FVector LocationEdge;
 
+	UPROPERTY(EditAnywhere, Category = "Upgrades", BlueprintReadWrite) ENUM_UPGRADES Upgrade_1;
+	UPROPERTY(EditAnywhere, Category = "Upgrades", BlueprintReadWrite) ENUM_UPGRADES Upgrade_2;
 
 private:
 	UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -55,6 +70,9 @@ private:
 
 	UFUNCTION(BlueprintCallable, Category = "Ranged")
 	void RangedMouse();
+
+	UFUNCTION(BlueprintCallable, Category = "Upgrades")
+	ENUM_UPGRADES ChooseUpgrade();
 
 protected:
 	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);

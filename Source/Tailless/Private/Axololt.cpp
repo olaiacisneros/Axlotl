@@ -361,6 +361,11 @@ void AAxololt::RangedMouse()
 	}
 }
 
+ENUM_UPGRADES AAxololt::ChooseUpgrade()
+{
+	return ENUM_UPGRADES::UPGRADE_MORE_LIFE;
+}
+
 FCollisionQueryParams AAxololt::GetIgnoreCharacterParams() const
 {
     FCollisionQueryParams result;
