@@ -137,24 +137,23 @@ void AAxololt::Move(const FInputActionValue& _value) {
 
 void AAxololt::Dashing() 
 {	
-    if (CharacterMovementComponent->IsFalling())
-    {
-        return;
-    }
-
-	if (!DashDisable)
+	if (!DashDisable || DashCounterAux > 0)
 	{
-        float EdgeThreshold = 50.0f;
+        float EdgeThreshold = 120.0f;
         FHitResult Hit;
+
+		const FRotator CameraRotation = CameraBoom->GetComponentRotation();
+		const FRotator YawRotation(0, CameraRotation.Yaw - 15, 0);
         
-		FRotator PlayerRotation = GetActorRotation();
+		FRotator PlayerRotation = GetActorRotation() + YawRotation;
 		FVector RotatedLocationEdge = PlayerRotation.RotateVector(LocationEdge);
 		UE_LOG(LogTemp, Display, TEXT("RotatedLocationEdge %s"), *RotatedLocationEdge.ToString());
 
-		FVector StartPosition = GetActorLocation() - RotatedLocationEdge;
-		UE_LOG(LogTemp, Display, TEXT("StartPosition %s"), *StartPosition.ToString());
+		FVector EndPosition = GetActorLocation() - RotatedLocationEdge - FVector(0, 0, EdgeThreshold);
+		//UE_LOG(LogTemp, Display, TEXT("StartPosition %s"), *StartPosition.ToString());
 
-		GetWorld()->LineTraceSingleByChannel(Hit, StartPosition, StartPosition - FVector(0, 0, EdgeThreshold), ECC_Visibility, GetIgnoreCharacterParams());
+		GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), EndPosition, ECC_Visibility, GetIgnoreCharacterParams());
+		DrawDebugLine(GetWorld(), GetActorLocation(), EndPosition, FColor::Red, true, 1.0f);
 
         bool IsNearEdge = !Hit.IsValidBlockingHit();
 
@@ -170,6 +169,8 @@ void AAxololt::Dashing()
 			UE_LOG(LogTemp, Display, TEXT("Not Edge"));
 		    LaunchCharacter(ForwardDir * DashDistance, true, true);
         }
+
+		DashCounterAux--;
 	}
 }
 
@@ -214,9 +215,9 @@ bool AAxololt::IsAttacking()
 }
 
 void AAxololt::AddHealth(float _healthAmount) {
-	if (Health + _healthAmount >= 100)
+	if (Health + _healthAmount > MaxHealth)
 	{
-        return;
+		Health = MaxHealth;
 	}
 	else
 	{
@@ -363,7 +364,54 @@ void AAxololt::RangedMouse()
 
 ENUM_UPGRADES AAxololt::ChooseUpgrade()
 {
-	return ENUM_UPGRADES::UPGRADE_MORE_LIFE;
+
+	return (ENUM_UPGRADES) FMath::RandRange((int) ENUM_UPGRADES::UPGRADE_MORE_LIFE, (int) ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL);
+}
+
+void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
+{
+	switch (_upgrade)
+	{
+		case ENUM_UPGRADES::UPGRADE_MORE_LIFE:
+			MaxHealth += 20;
+			Health = MaxHealth;
+			break;
+
+		case ENUM_UPGRADES:: UPGRADE_LIFE_PER_ROOM:
+			upgrade_room_life = true;
+			break;
+
+		case ENUM_UPGRADES::UPGRADE_DOUBLE_DASH:
+			DashCounter = 2;
+			DashCounterAux = 2;
+			UE_LOG(LogTemp, Display, TEXT("Upgrade_Double_dash %i"), DashCounter);
+			break;
+		
+		case ENUM_UPGRADES::UPGRADE_BASIC_ATTACK:
+			// TODO
+			/*
+				Pasar al Notify el daño que tienen que hacer el arma
+			*/
+			break;
+
+		case ENUM_UPGRADES::UPGRADE_BASIC_COMBO:
+			// TODO
+			/*
+				Pasar al Notify del combo el daño que tienen que hacer el arma	
+			*/
+			break;
+
+		case ENUM_UPGRADES::UPGRADE_SPECIAL_ATTACK:
+			// TODO
+			/*
+				Pasar al Notify del ataque especial el daño que tiene que hacer el arma
+			*/
+			break;
+
+		case ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL:
+			CoolDownSpecialAttack = 1;
+			break;
+	}
 }
 
 FCollisionQueryParams AAxololt::GetIgnoreCharacterParams() const

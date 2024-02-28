@@ -10,7 +10,7 @@
 #include "Axololt.generated.h"
 
 UENUM(BlueprintType)
-enum class ENUM_UPGRADES
+enum class ENUM_UPGRADES : uint8
 {
 	UPGRADE_MORE_LIFE					UMETA(DisplayName = "UPGRADE_MORE_LIFE"),
 	UPGRADE_LIFE_PER_ROOM				UMETA(DisplayName = "UPGRADE_LIFE_PER_ROOM"),
@@ -38,12 +38,23 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float WeponDamage = 5;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float AttackRange = 1000;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) TSubclassOf<UDamageType> PlayerDamageType;
+	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float MaxHealth = 100;
 	UPROPERTY(EditAnyWhere, Category = "PlayerCharacter Properties", BlueprintReadWrite) float Health = 100;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FVector ProjectileDirection;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float AngleProjectile = 0;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FRotator RotatorProjectile;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float BasicAttackDamage = 10;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float BasicAttackComboDamage = 15;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float SpecialAttackDamage = 20;
+	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float CoolDownSpecialAttack = 1.5f;
+
+
 	UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) bool DashDisable = false;
     UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) FVector LocationEdge;
+	UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) int DashCounter = 1;
+	UPROPERTY(EditAnyWhere, Category = "Dash", BlueprintReadWrite) int DashCounterAux = 1;
+
+	UPROPERTY(EditAnyWhere, Category = "Upgrades", BlueprintReadWrite) bool upgrade_room_life = false;
 
 	UPROPERTY(EditAnywhere, Category = "Upgrades", BlueprintReadWrite) ENUM_UPGRADES Upgrade_1;
 	UPROPERTY(EditAnywhere, Category = "Upgrades", BlueprintReadWrite) ENUM_UPGRADES Upgrade_2;
@@ -73,6 +84,9 @@ private:
 
 	UFUNCTION(BlueprintCallable, Category = "Upgrades")
 	ENUM_UPGRADES ChooseUpgrade();
+
+	UFUNCTION(BlueprintCallable, Category = "Upgrades")
+	void ApplyUpgrade(ENUM_UPGRADES _upgrade);
 
 protected:
 	float InternalTakePointDamage(float Damage, struct FPointDamageEvent const& RadialDamageEvent, class AController* EventInstigator, AActor* DamageCauser);
