@@ -116,21 +116,26 @@ void AAxololt::Move(const FInputActionValue& _value) {
 		FVector MovementDirection = ForwardDirection * MovementVector.Y + RightDirection * MovementVector.X;
 
 		if (!MovementDirection.IsNearlyZero()) {
-			//Normaliza la direccion del movimiento
-			MovementDirection.Normalize();
+			
+			if (Health > 0)
+			{
+				//Normaliza la direccion del movimiento
+				MovementDirection.Normalize();
 
-			//Calcula la rotacion hacia la que el personaje deberia mirara
-			FRotator NewLookAt = MovementDirection.Rotation();
+				//Calcula la rotacion hacia la que el personaje deberia mirara
+				FRotator NewLookAt = MovementDirection.Rotation();
 
-			//Obtiene la rotacion actual del personaje 
-			FRotator CurrentRotation = GetActorRotation();
+				//Obtiene la rotacion actual del personaje 
+				FRotator CurrentRotation = GetActorRotation();
 
-			//Interpola suavemente hacia la nueva rotacion
-			FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
+				//Interpola suavemente hacia la nueva rotacion
+				FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
 
-			//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
-			SetActorRotation(SmoothRotation);
-			//UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
+				//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
+				SetActorRotation(SmoothRotation);
+				//UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
+			}
+
 		}
 	}
 }
