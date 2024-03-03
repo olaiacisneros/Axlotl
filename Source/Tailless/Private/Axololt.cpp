@@ -386,31 +386,26 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 			upgrade_room_life = true;
 			break;
 
+		case ENUM_UPGRADES:: UPGRADE_LIFE_ADD:
+			AddHealth(10);
+			break;
+
 		case ENUM_UPGRADES::UPGRADE_DOUBLE_DASH:
 			DashCounter = 2;
 			DashCounterAux = 2;
-			UE_LOG(LogTemp, Display, TEXT("Upgrade_Double_dash %i"), DashCounter);
+			//UE_LOG(LogTemp, Display, TEXT("Upgrade_Double_dash %i"), DashCounter);
 			break;
 		
 		case ENUM_UPGRADES::UPGRADE_BASIC_ATTACK:
-			// TODO
-			/*
-				Pasar al Notify el daño que tienen que hacer el arma
-			*/
+			BasicAttackDamage += 5;
 			break;
 
 		case ENUM_UPGRADES::UPGRADE_BASIC_COMBO:
-			// TODO
-			/*
-				Pasar al Notify del combo el daño que tienen que hacer el arma	
-			*/
+			BasicAttackComboDamage += 5;
 			break;
 
 		case ENUM_UPGRADES::UPGRADE_SPECIAL_ATTACK:
-			// TODO
-			/*
-				Pasar al Notify del ataque especial el daño que tiene que hacer el arma
-			*/
+			SpecialAttackDamage += 5;
 			break;
 
 		case ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL:

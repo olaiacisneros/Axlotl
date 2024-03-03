@@ -14,6 +14,7 @@ enum class ENUM_UPGRADES : uint8
 {
 	UPGRADE_MORE_LIFE					UMETA(DisplayName = "UPGRADE_MORE_LIFE"),
 	UPGRADE_LIFE_PER_ROOM				UMETA(DisplayName = "UPGRADE_LIFE_PER_ROOM"),
+	UPGRADE_LIFE_ADD					UMETA(DisplayName = "UPGRADE_LIFE_ADD"),
 	UPGRADE_DOUBLE_DASH					UMETA(DisplayName = "UPGRADE_DOUBLE_DASH"),
 	UPGRADE_BASIC_ATTACK				UMETA(DisplayName = "UPGRADE_BASIC_ATTACK"),
 	UPGRADE_BASIC_COMBO					UMETA(DisplayName = "UPGRADE_BASIC_COMBO"),
@@ -43,6 +44,7 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FVector ProjectileDirection;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float AngleProjectile = 0;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) FRotator RotatorProjectile;
+
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float BasicAttackDamage = 10;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float BasicAttackComboDamage = 15;
 	UPROPERTY(EditAnyWhere, Category = "Attacks", BlueprintReadWrite) float SpecialAttackDamage = 20;
