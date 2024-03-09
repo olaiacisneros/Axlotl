@@ -48,6 +48,8 @@ AAxololt::AAxololt()
 
     CharacterMovementComponent = GetCharacterMovement();
 
+	MaxHealth = 100;
+
 }
 
 // Called when the game starts or when spawned
@@ -378,39 +380,66 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 	switch (_upgrade)
 	{
 		case ENUM_UPGRADES::UPGRADE_MORE_LIFE:
+		{
 			MaxHealth += 20;
 			Health = MaxHealth;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_More_life %d"), MaxHealth);
 			break;
+		}
 
 		case ENUM_UPGRADES:: UPGRADE_LIFE_PER_ROOM:
+		{
 			upgrade_room_life = true;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_room_life true"));
 			break;
+		}
 
 		case ENUM_UPGRADES:: UPGRADE_LIFE_ADD:
-			AddHealth(10);
+		{
+			float addHealth = 10;
+			AddHealth(addHealth);
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Life_Add %i"), addHealth);
 			break;
+		}
 
 		case ENUM_UPGRADES::UPGRADE_DOUBLE_DASH:
+		{
 			DashCounter = 2;
 			DashCounterAux = 2;
-			//UE_LOG(LogTemp, Display, TEXT("Upgrade_Double_dash %i"), DashCounter);
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Double_dash %i"), DashCounter);
 			break;
+		}
 		
 		case ENUM_UPGRADES::UPGRADE_BASIC_ATTACK:
-			BasicAttackDamage += 5;
+		{
+			float addAttack = 5;
+			BasicAttackDamage += addAttack;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack %d"), addAttack);
 			break;
+		}
 
 		case ENUM_UPGRADES::UPGRADE_BASIC_COMBO:
-			BasicAttackComboDamage += 5;
+		{
+			float addAttack = 5;
+			BasicAttackComboDamage += addAttack;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo %d"), addAttack);
 			break;
+		}
 
 		case ENUM_UPGRADES::UPGRADE_SPECIAL_ATTACK:
-			SpecialAttackDamage += 5;
+		{
+			float addAttack = 5;
+			SpecialAttackDamage += addAttack;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Special_Attack %d"), addAttack);
 			break;
+		}
 
 		case ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL:
+		{
 			CoolDownSpecialAttack = 1;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Cooldown_Special 1"));
 			break;
+		}
 	}
 }
 
