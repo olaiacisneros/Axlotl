@@ -383,6 +383,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			MaxHealth += 20;
 			Health = MaxHealth;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_More_life %d"), MaxHealth);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_More_life %d"), MaxHealth);
 			break;
 		}
@@ -391,6 +392,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			upgrade_room_life = true;
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_room_life true"));
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_room_life true"));
 			break;
 		}
 
@@ -398,6 +400,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			float addHealth = 10;
 			AddHealth(addHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Life_Add %i"), addHealth);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Life_Add %i"), addHealth);
 			break;
 		}
@@ -406,6 +409,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			DashCounter = 2;
 			DashCounterAux = 2;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Double_dash %i"), DashCounter);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Double_dash %i"), DashCounter);
 			break;
 		}
@@ -414,6 +418,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			float addAttack = 5;
 			BasicAttackDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack %d"), addAttack);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack %d"), addAttack);
 			break;
 		}
@@ -422,6 +427,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			float addAttack = 5;
 			BasicAttackComboDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo %d"), addAttack);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo %d"), addAttack);
 			break;
 		}
@@ -430,6 +436,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		{
 			float addAttack = 5;
 			SpecialAttackDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Special_Attack %d"), addAttack);
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Special_Attack %d"), addAttack);
 			break;
 		}
@@ -437,6 +444,7 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 		case ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL:
 		{
 			CoolDownSpecialAttack = 1;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Cooldown_Special 1"));
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Cooldown_Special 1"));
 			break;
 		}
