@@ -48,6 +48,8 @@ AAxololt::AAxololt()
 
     CharacterMovementComponent = GetCharacterMovement();
 
+	MaxHealth = 100;
+
 }
 
 // Called when the game starts or when spawned
@@ -116,45 +118,49 @@ void AAxololt::Move(const FInputActionValue& _value) {
 		FVector MovementDirection = ForwardDirection * MovementVector.Y + RightDirection * MovementVector.X;
 
 		if (!MovementDirection.IsNearlyZero()) {
-			//Normaliza la direccion del movimiento
-			MovementDirection.Normalize();
+			
+			if (Health > 0)
+			{
+				//Normaliza la direccion del movimiento
+				MovementDirection.Normalize();
 
-			//Calcula la rotacion hacia la que el personaje deberia mirara
-			FRotator NewLookAt = MovementDirection.Rotation();
+				//Calcula la rotacion hacia la que el personaje deberia mirara
+				FRotator NewLookAt = MovementDirection.Rotation();
 
-			//Obtiene la rotacion actual del personaje 
-			FRotator CurrentRotation = GetActorRotation();
+				//Obtiene la rotacion actual del personaje 
+				FRotator CurrentRotation = GetActorRotation();
 
-			//Interpola suavemente hacia la nueva rotacion
-			FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
+				//Interpola suavemente hacia la nueva rotacion
+				FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
 
-			//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
-			SetActorRotation(SmoothRotation);
-			//UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
+				//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
+				SetActorRotation(SmoothRotation);
+				//UE_LOG(LogTemp, Display, TEXT("SmoothRotation: %s"), *SmoothRotation.ToString());
+			}
+
 		}
 	}
 }
 
 void AAxololt::Dashing() 
 {	
-    if (CharacterMovementComponent->IsFalling())
-    {
-        return;
-    }
-
-	if (!DashDisable)
+	if (!DashDisable || DashCounterAux > 0)
 	{
-        float EdgeThreshold = 50.0f;
+        float EdgeThreshold = 120.0f;
         FHitResult Hit;
+
+		const FRotator CameraRotation = CameraBoom->GetComponentRotation();
+		const FRotator YawRotation(0, CameraRotation.Yaw - 15, 0);
         
-		FRotator PlayerRotation = GetActorRotation();
+		FRotator PlayerRotation = GetActorRotation() + YawRotation;
 		FVector RotatedLocationEdge = PlayerRotation.RotateVector(LocationEdge);
 		UE_LOG(LogTemp, Display, TEXT("RotatedLocationEdge %s"), *RotatedLocationEdge.ToString());
 
-		FVector StartPosition = GetActorLocation() - RotatedLocationEdge;
-		UE_LOG(LogTemp, Display, TEXT("StartPosition %s"), *StartPosition.ToString());
+		FVector EndPosition = GetActorLocation() - RotatedLocationEdge - FVector(0, 0, EdgeThreshold);
+		//UE_LOG(LogTemp, Display, TEXT("StartPosition %s"), *StartPosition.ToString());
 
-		GetWorld()->LineTraceSingleByChannel(Hit, StartPosition, StartPosition - FVector(0, 0, EdgeThreshold), ECC_Visibility, GetIgnoreCharacterParams());
+		GetWorld()->LineTraceSingleByChannel(Hit, GetActorLocation(), EndPosition, ECC_Visibility, GetIgnoreCharacterParams());
+		DrawDebugLine(GetWorld(), GetActorLocation(), EndPosition, FColor::Red, true, 1.0f);
 
         bool IsNearEdge = !Hit.IsValidBlockingHit();
 
@@ -170,6 +176,8 @@ void AAxololt::Dashing()
 			UE_LOG(LogTemp, Display, TEXT("Not Edge"));
 		    LaunchCharacter(ForwardDir * DashDistance, true, true);
         }
+
+		DashCounterAux--;
 	}
 }
 
@@ -214,9 +222,9 @@ bool AAxololt::IsAttacking()
 }
 
 void AAxololt::AddHealth(float _healthAmount) {
-	if (Health + _healthAmount >= 100)
+	if (Health + _healthAmount > MaxHealth)
 	{
-        return;
+		Health = MaxHealth;
 	}
 	else
 	{
@@ -358,6 +366,94 @@ void AAxololt::RangedMouse()
 		RotatorProjectile.Pitch = 0.f;
 		//UE_LOG(LogTemp, Display, TEXT("Valor de RotatorProjectile Bueno: %s"), *RotatorProjectile.ToString());
 
+	}
+}
+
+ENUM_UPGRADES AAxololt::ChooseUpgrade()
+{
+
+	return (ENUM_UPGRADES) FMath::RandRange((int) ENUM_UPGRADES::UPGRADE_MORE_LIFE, (int) ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL);
+}
+
+void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
+{
+	switch (_upgrade)
+	{
+		case ENUM_UPGRADES::UPGRADE_MORE_LIFE:
+		{
+			MaxHealth += 20;
+			Health = MaxHealth;
+			GEngine->AddOnScreenDebugMessage(1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_More_life"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_More_life %d"), MaxHealth);
+			break;
+		}
+
+		case ENUM_UPGRADES:: UPGRADE_LIFE_PER_ROOM:
+		{
+			upgrade_room_life = true;
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_room_life true"));
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_room_life true"));
+			break;
+		}
+
+		case ENUM_UPGRADES:: UPGRADE_LIFE_ADD:
+		{
+			float addHealth = 10;
+			AddHealth(addHealth);
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Life_Add"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Life_Add %i"), addHealth);
+			break;
+		}
+
+		case ENUM_UPGRADES::UPGRADE_DOUBLE_DASH:
+		{
+			DashCounter = 2;
+			DashCounterAux = 2;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Double_dash"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Double_dash %i"), DashCounter);
+			break;
+		}
+		
+		case ENUM_UPGRADES::UPGRADE_BASIC_ATTACK:
+		{
+			float addAttack = 5;
+			BasicAttackDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack %d"), addAttack);
+			break;
+		}
+
+		case ENUM_UPGRADES::UPGRADE_BASIC_COMBO:
+		{
+			float addAttack = 5;
+			BasicAttackComboDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo %d"), addAttack);
+			break;
+		}
+
+		case ENUM_UPGRADES::UPGRADE_SPECIAL_ATTACK:
+		{
+			float addAttack = 5;
+			SpecialAttackDamage += addAttack;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Special_Attack"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Special_Attack %d"), addAttack);
+			break;
+		}
+
+		case ENUM_UPGRADES::UPGRADE_COOLDOWN_SPECIAL:
+		{
+			CoolDownSpecialAttack = 1;
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Cooldown_Special 1"));
+			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Cooldown_Special 1"));
+			break;
+		}
+
+		default:
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp] DEFAULT"));
+			break;
+		}
 	}
 }
 
