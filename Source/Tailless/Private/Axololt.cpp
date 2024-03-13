@@ -131,7 +131,7 @@ void AAxololt::Move(const FInputActionValue& _value) {
 				FRotator CurrentRotation = GetActorRotation();
 
 				//Interpola suavemente hacia la nueva rotacion
-				FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 2.0f);
+				FRotator SmoothRotation = FMath::RInterpTo(CurrentRotation, NewLookAt, GetWorld()->GetDeltaSeconds(), 10.0f);
 
 				//Actualiza la rotacion del perosnaje para que mire en la direccion del movimiento
 				SetActorRotation(SmoothRotation);
@@ -420,15 +420,6 @@ void AAxololt::ApplyUpgrade(ENUM_UPGRADES _upgrade)
 			BasicAttackDamage += addAttack;
 			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack"));
 			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Attack %d"), addAttack);
-			break;
-		}
-
-		case ENUM_UPGRADES::UPGRADE_BASIC_COMBO:
-		{
-			float addAttack = 5;
-			BasicAttackComboDamage += addAttack;
-			GEngine->AddOnScreenDebugMessage(-1, 15, FColor::White, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo"));
-			UE_LOG(LogTemp, Display, TEXT("[Axololt.cpp]	Upgrade_Basic_Combo %d"), addAttack);
 			break;
 		}
 
